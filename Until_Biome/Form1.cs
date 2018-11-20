@@ -23,13 +23,19 @@ namespace Until_Biome
             bluepen = new Pen(Color.Blue, 6);
             greenpen = new Pen(Color.Green, 6);
             circleSize = new Size(15,15);
-            
+
+            snowBrush = new SolidBrush(Color.Gray);
+            forestBrush = new SolidBrush(Color.DarkGreen);
+            grasslandBrush = new SolidBrush(Color.SpringGreen);
+            desertBrush = new SolidBrush(Color.Gold);
+            lavaBrush = new SolidBrush(Color.Firebrick);
+            volcanoBrush = new SolidBrush(Color.Fuchsia);
         }
 
         Bitmap bmp;
         Graphics g;
         Pen blackpen, bluepen, greenpen;
-        Brush redBrush, yellowBrush;
+        Brush redBrush, yellowBrush, snowBrush, forestBrush, grasslandBrush, desertBrush, lavaBrush, volcanoBrush;
         Size circleSize;
         VoronoiStruct.Voronoi vmap = null;
         Random rand = new Random();
@@ -293,6 +299,59 @@ namespace Until_Biome
                 //System.Diagnostics.Debug.WriteLine("Ratio elevation: " + item.elevation);
             }
         }
+
+        void decide_biome(ref VoronoiStruct.Voronoi map) //決定出生態系
+        {
+            foreach(var item in map.polygons)
+            {
+                if (item.elevation <= 0.3 && item.moisture <= 0.35) item.bio = VoronoiStruct.Biome.Lava;
+                else if (item.elevation >= 0.3 && item.elevation <= 0.8 && item.moisture <= 0.35) item.bio = VoronoiStruct.Biome.Desert;
+                else if (item.elevation >= 0.8 && item.moisture <= 0.35) item.bio = VoronoiStruct.Biome.Volcano;
+
+                else if (item.elevation <= 0.3 && item.moisture >= 0.35 && item.moisture <= 0.55) item.bio = VoronoiStruct.Biome.Desert;
+                else if (item.elevation >= 0.3 && item.elevation <= 0.8 && item.moisture >= 0.35 && item.moisture <= 0.55) item.bio = VoronoiStruct.Biome.Grassland;
+                else if (item.elevation >= 0.8 && item.moisture >= 0.35 && item.moisture <= 0.55) item.bio = VoronoiStruct.Biome.Snow;
+
+                else if (item.elevation <= 0.5 && item.moisture >= 0.55 && item.moisture <= 0.8) item.bio = VoronoiStruct.Biome.Grassland;
+                else if (item.elevation >= 0.5 && item.elevation <= 0.8 && item.moisture >= 0.55 && item.moisture <= 0.8) item.bio = VoronoiStruct.Biome.Forest;
+                else if (item.elevation >= 0.8 && item.moisture >= 0.55 && item.moisture <= 0.8) item.bio = VoronoiStruct.Biome.Snow;
+
+                else if (item.elevation <= 0.8 && item.moisture >= 0.8) item.bio = VoronoiStruct.Biome.Forest;
+                else if (item.elevation >= 0.8 && item.moisture >= 0.8) item.bio = VoronoiStruct.Biome.Snow;
+
+            }
+        }
+
+        void drawing_biome(VoronoiStruct.Voronoi map) //畫出生態系
+        {
+            foreach(var item in map.polygons)
+            {
+                switch (item.bio)
+                {
+                    case VoronoiStruct.Biome.Grassland:
+                        drawPoint(grasslandBrush, item.focus);
+                        break;
+                    case VoronoiStruct.Biome.Forest:
+                        drawPoint(forestBrush, item.focus);
+                        break;
+                    case VoronoiStruct.Biome.Desert:
+                        drawPoint(desertBrush, item.focus);
+                        break;
+                    case VoronoiStruct.Biome.Snow:
+                        drawPoint(snowBrush, item.focus);
+                        break;
+                    case VoronoiStruct.Biome.Lava:
+                        drawPoint(lavaBrush, item.focus);
+                        break;
+                    case VoronoiStruct.Biome.Volcano:
+                        drawPoint(volcanoBrush, item.focus);
+                        break;
+
+                }
+            }
+        }
+
+
         int Toppolygon;
         private void elevationbutton_Click(object sender, EventArgs e)
         {
@@ -356,7 +415,7 @@ namespace Until_Biome
             }
 
             find_sea(ref vmap);
-            foreach (var item in vmap.polygons) //把海畫出來
+            /*foreach (var item in vmap.polygons) //把海畫出來
             {
                 if (item.isSea)
                 {
@@ -365,15 +424,21 @@ namespace Until_Biome
                         drawLine(greenpen, item2.line);
                     }
                 }
-            }
+            }*/
 
-            //vmap.polygons[Toppolygon].bio = VoronoiStruct.Biome.Volcano;
 
             give_moisture(ref vmap);
 
 
             elevation_for_polygon(ref vmap);
             ratio_elevation_of_polygon(ref vmap);
+
+            decide_biome(ref vmap);
+            /*foreach(var item in vmap.polygons)
+            {
+                System.Diagnostics.Debug.WriteLine(item.bio);
+            }*/
+            drawing_biome(vmap);
 
 
             pictureBox1.Invalidate();
