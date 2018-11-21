@@ -20,7 +20,7 @@ namespace Until_Biome
             redBrush = new SolidBrush(Color.Red);
             yellowBrush = new SolidBrush(Color.Yellow);
             blackpen = new Pen(Color.Black, 4);
-            bluepen = new Pen(Color.Blue, 6);
+            bluepen = new Pen(Color.SkyBlue, 6);
             greenpen = new Pen(Color.Green, 6);
             circleSize = new Size(15,15);
 
@@ -30,15 +30,21 @@ namespace Until_Biome
             desertBrush = new SolidBrush(Color.Gold);
             lavaBrush = new SolidBrush(Color.Firebrick);
             volcanoBrush = new SolidBrush(Color.Fuchsia);
+            oceanBrush = new SolidBrush(Color.Navy);
+
+            this.Form1_Resize(null, null);
         }
 
         Bitmap bmp;
         Graphics g;
         Pen blackpen, bluepen, greenpen;
-        Brush redBrush, yellowBrush, snowBrush, forestBrush, grasslandBrush, desertBrush, lavaBrush, volcanoBrush;
+        Brush redBrush, yellowBrush;
+        Brush oceanBrush, snowBrush, forestBrush, grasslandBrush, desertBrush, lavaBrush, volcanoBrush;
         Size circleSize;
         VoronoiStruct.Voronoi vmap = null;
         Random rand = new Random();
+        World world = new World();
+
 
         private void readMap(string path, out VoronoiStruct.Voronoi map)
         {
@@ -52,6 +58,7 @@ namespace Until_Biome
             // this func is just a short hand for writting FillEllipse
             Point pos1 = new Point(pos.x - circleSize.Width / 2, pos.y - circleSize.Height / 2);
             g.FillEllipse(brush, new RectangleF(pos1, circleSize));
+            //g.DrawRectangle(new Pen(Color.Orange), new Rectangle(30, 30, 10, 10));
         }
 
         void drawLine(Pen pen, VoronoiStruct.Line line)
@@ -163,6 +170,7 @@ namespace Until_Biome
             float temp = 1000;
             foreach (var item1 in vmap.polygons)
             {
+                
                 foreach(var item2 in item1.edges)
                 {
                     if (pos.x == item2.line.a.x && pos.y == item2.line.a.y)
@@ -186,6 +194,8 @@ namespace Until_Biome
                         }
                     }
                 }
+                //connect.Clear();
+                //line.Clear();
             }
 
             if (pos.elevation <= temp)
@@ -219,6 +229,35 @@ namespace Until_Biome
             //return river_generator(connect[i]);
             return 0;
 
+        }
+
+        void draw_river(VoronoiStruct.Voronoi map) //畫出河流
+        {
+            foreach (var item in map.polygons)
+            {
+                foreach (var item2 in item.edges)
+                {
+                    if (item2.line.isRiver)
+                    {
+                        drawLine(bluepen, item2.line);
+                    }
+                }
+            }
+        }
+
+        private void Form1_Resize(object sender, EventArgs e)
+        {
+            pictureBox1.Size = new Size(this.Size.Height - 110, this.Size.Height - 110);
+            panel1.Left = pictureBox1.Right + 7;
+        }
+
+        private void savefileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if(saveFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                string json = JsonConvert.SerializeObject(vmap, Formatting.Indented);
+                System.IO.File.WriteAllText(saveFileDialog1.FileName, json);
+            }
         }
 
         void find_sea(ref VoronoiStruct.Voronoi map) //找出所有的海
@@ -268,6 +307,15 @@ namespace Until_Biome
             
         }
 
+        private void saveCastResultToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if(saveFileDialog2.ShowDialog() == DialogResult.OK)
+            {
+                string json = JsonConvert.SerializeObject(world, Formatting.Indented);
+                System.IO.File.WriteAllText(saveFileDialog2.FileName, json);
+            }
+        }
+
         void elevation_for_polygon(ref VoronoiStruct.Voronoi map) //算出所有polygon的elevation
         {
             float ele = 0;
@@ -310,7 +358,7 @@ namespace Until_Biome
 
                 else if (item.elevation <= 0.3 && item.moisture >= 0.35 && item.moisture <= 0.55) item.bio = VoronoiStruct.Biome.Desert;
                 else if (item.elevation >= 0.3 && item.elevation <= 0.8 && item.moisture >= 0.35 && item.moisture <= 0.55) item.bio = VoronoiStruct.Biome.Grassland;
-                else if (item.elevation >= 0.8 && item.moisture >= 0.35 && item.moisture <= 0.55) item.bio = VoronoiStruct.Biome.Snow;
+                else if (item.elevation >= 0.8 && item.moisture >= 0.35 && item.moisture <= 0.55) item.bio = VoronoiStruct.Biome.Desert;
 
                 else if (item.elevation <= 0.5 && item.moisture >= 0.55 && item.moisture <= 0.8) item.bio = VoronoiStruct.Biome.Grassland;
                 else if (item.elevation >= 0.5 && item.elevation <= 0.8 && item.moisture >= 0.55 && item.moisture <= 0.8) item.bio = VoronoiStruct.Biome.Forest;
@@ -319,6 +367,10 @@ namespace Until_Biome
                 else if (item.elevation <= 0.8 && item.moisture >= 0.8) item.bio = VoronoiStruct.Biome.Forest;
                 else if (item.elevation >= 0.8 && item.moisture >= 0.8) item.bio = VoronoiStruct.Biome.Snow;
 
+            }
+            foreach(var item in map.polygons)
+            {
+                if (item.isSea) item.bio = VoronoiStruct.Biome.Ocean;
             }
         }
 
@@ -346,7 +398,9 @@ namespace Until_Biome
                     case VoronoiStruct.Biome.Volcano:
                         drawPoint(volcanoBrush, item.focus);
                         break;
-
+                    case VoronoiStruct.Biome.Ocean:
+                        drawPoint(oceanBrush, item.focus);
+                        break;
                 }
             }
         }
@@ -370,10 +424,10 @@ namespace Until_Biome
                 n = rand.Next(0, vmap.polygons.Count);
                 foreach(var item in vmap.polygons[n].edges)
                 {
-                    if (item.line.a.x <= 200 || item.line.a.x >= 600) beTop = false;
-                    else if (item.line.a.y <= 200 || item.line.a.y >= 600) beTop = false;
-                    else if (item.line.b.x <= 200 || item.line.b.x >= 600) beTop = false;
-                    else if (item.line.b.y <= 200 || item.line.b.y >= 600) beTop = false;
+                    if (item.line.a.x <= 250 || item.line.a.x >= 550) beTop = false;
+                    else if (item.line.a.y <= 250 || item.line.a.y >= 550) beTop = false;
+                    else if (item.line.b.x <= 250 || item.line.b.x >= 550) beTop = false;
+                    else if (item.line.b.y <= 250 || item.line.b.y >= 550) beTop = false;
                 }
                 if (beTop)
                 {
@@ -400,19 +454,8 @@ namespace Until_Biome
             }*/
             find_river_source(vmap.polygons[Toppolygon]);
             if (river_generator(riversource) == -1) System.Diagnostics.Debug.WriteLine("Correct generate river");
-            foreach(var item in vmap.polygons) //把河畫出來
-            {
-                foreach(var item2 in item.edges)
-                {
-                    //System.Diagnostics.Debug.WriteLine(item2.line.isRiver);
-                    if (item2.line.isRiver)
-                    {
-                        /*drawPoint(yellowBrush, item2.line.a);
-                        drawPoint(yellowBrush, item2.line.b);*/
-                        drawLine(bluepen, item2.line);
-                    }
-                }
-            }
+
+            draw_river(vmap);
 
             find_sea(ref vmap);
             /*foreach (var item in vmap.polygons) //把海畫出來
@@ -451,7 +494,108 @@ namespace Until_Biome
                 readMap(openFileDialog1.FileName, out vmap);
                 //if(vmap != null) MessageBox.Show("file input success");
                 drawVoronoi(vmap);
+                drawing_biome(vmap);
+                draw_river(vmap);
             }
+        }
+
+
+
+        void cast_to_world(VoronoiStruct.Voronoi map)
+        {
+            float x1 = 0, y1 = 0, x2 = 0, y2 = 0;
+            float result;
+            bool inside = true;
+            for (int i = 0; i < world.unit.GetLength(0); ++i)
+            {
+                for (int j = 0; j < world.unit.GetLength(1); ++j)
+                {
+                    foreach(var item1 in map.polygons)
+                    {
+                        foreach(var item2 in item1.edges)
+                        {
+                            x1 = item2.line.a.x - i;
+                            y1 = item2.line.a.y - j;
+                            x2 = item2.line.b.x - i;
+                            y2 = item2.line.b.y - j;
+                            result = x1 * y2 - y1 * x2;
+                            if (result <= 0f)
+                            {
+                                inside = false;
+                                break;
+                            }
+                        }
+                        if (inside)
+                        {
+                            world.unit[i, j] = item1.bio;
+                            break;
+                        }
+                    }
+                    inside = true;
+                }
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (vmap == null)
+            {
+                MessageBox.Show("No map");
+                return;
+            }
+            cast_to_world(vmap);
+            System.Diagnostics.Debug.WriteLine("Cast Success");
+        }
+
+
+        private void draw_unit(int a, int b) //畫出unit
+        {
+            switch (world.unit[a, b])
+            {
+                case VoronoiStruct.Biome.Grassland:
+                    g.DrawRectangle(new Pen(Color.SpringGreen), new Rectangle(a, b, 1, 1));
+                    break;
+                case VoronoiStruct.Biome.Forest:
+                    g.DrawRectangle(new Pen(Color.DarkGreen), new Rectangle(a, b, 1, 1));
+                    break;
+                case VoronoiStruct.Biome.Desert:
+                    g.DrawRectangle(new Pen(Color.Gold), new Rectangle(a, b, 1, 1));
+                    break;
+                case VoronoiStruct.Biome.Snow:
+                    g.DrawRectangle(new Pen(Color.Gray), new Rectangle(a, b, 1, 1));
+                    break;
+                case VoronoiStruct.Biome.Lava:
+                    g.DrawRectangle(new Pen(Color.Firebrick), new Rectangle(a, b, 1, 1));
+                    break;
+                case VoronoiStruct.Biome.Volcano:
+                    g.DrawRectangle(new Pen(Color.Fuchsia), new Rectangle(a, b, 1, 1));
+                    break;
+                case VoronoiStruct.Biome.Ocean:
+                    g.DrawRectangle(new Pen(Color.Navy), new Rectangle(a, b, 1, 1));
+                    break;
+                default:
+                    g.DrawRectangle(new Pen(Color.Orange), new Rectangle(a, b, 1, 1));
+                    break;
+            }
+            
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (vmap == null)
+                return;
+            bmp = new Bitmap(vmap.width, vmap.height);
+            g = Graphics.FromImage(bmp);
+            g.Clear(Color.White);
+            pictureBox1.Image = bmp;
+            for (int i = 0; i < world.unit.GetLength(0); ++i)
+            {
+                for (int j = 0; j < world.unit.GetLength(1); ++j)
+                {
+                    draw_unit(i, j);
+                }
+            }
+            System.Diagnostics.Debug.WriteLine("Finish Draw");
         }
     }
 }
