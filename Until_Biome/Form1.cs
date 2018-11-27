@@ -397,6 +397,28 @@ namespace Until_Biome
             }
         }
 
+        void decide_coastline(ref VoronoiStruct.Voronoi map) //決定海岸線
+        {
+            foreach(var item1 in map.polygons)
+            {
+                if (item1.bio == VoronoiStruct.Biome.Ocean)
+                {
+                    foreach (var item2 in item1.edges)
+                    {
+                        if (item2.parentID == null) continue;
+                        if(map.polygons[item2.parentID[0]].bio != VoronoiStruct.Biome.Ocean)
+                        {
+                            map.polygons[item2.parentID[0]].bio = VoronoiStruct.Biome.Coastline;
+                        }
+                        if (map.polygons[item2.parentID[1]].bio != VoronoiStruct.Biome.Ocean)
+                        {
+                            map.polygons[item2.parentID[1]].bio = VoronoiStruct.Biome.Coastline;
+                        }
+                    }                    
+                }
+            }
+        }
+
         void drawing_biome(VoronoiStruct.Voronoi map) //畫出生態系
         {
             foreach(var item in map.polygons)
@@ -423,6 +445,15 @@ namespace Until_Biome
                         break;
                     case VoronoiStruct.Biome.Ocean:
                         drawPoint(oceanBrush, item.focus);
+                        break;
+                    case VoronoiStruct.Biome.River:
+                        drawPoint(new SolidBrush(Color.SkyBlue), item.focus);
+                        break;
+                    case VoronoiStruct.Biome.Riverbank:
+                        drawPoint(new SolidBrush(Color.Pink), item.focus);
+                        break;
+                    case VoronoiStruct.Biome.Coastline:
+                        drawPoint(new SolidBrush(Color.SaddleBrown), item.focus);
                         break;
                 }
             }
@@ -513,6 +544,8 @@ namespace Until_Biome
             ratio_elevation_of_polygon(ref vmap);
 
             decide_biome(ref vmap);
+
+            decide_coastline(ref vmap);
             /*foreach(var item in vmap.polygons)
             {
                 System.Diagnostics.Debug.WriteLine(item.bio);
@@ -615,6 +648,12 @@ namespace Until_Biome
                     break;
                 case VoronoiStruct.Biome.River:
                     g.DrawRectangle(new Pen(Color.SkyBlue), new Rectangle(a, b, 1, 1));
+                    break;
+                case VoronoiStruct.Biome.Coastline:
+                    g.DrawRectangle(new Pen(Color.SaddleBrown), new Rectangle(a, b, 1, 1));
+                    break;
+                case VoronoiStruct.Biome.Riverbank:
+                    g.DrawRectangle(new Pen(Color.Pink), new Rectangle(a, b, 1, 1));
                     break;
                 default:
                     g.DrawRectangle(new Pen(Color.Black), new Rectangle(a, b, 1, 1));
