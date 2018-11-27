@@ -152,14 +152,14 @@ namespace Until_Biome
             }
         }
 
-        //List<VoronoiStruct.Point> riversource = new List<VoronoiStruct.Point>(); 
-        VoronoiStruct.Point riversource;
+        List<VoronoiStruct.Point> riversource = new List<VoronoiStruct.Point>(); 
+        //VoronoiStruct.Point riversource;
         List<VoronoiStruct.Point> allRiver = new List<VoronoiStruct.Point>();
         void find_river_source(VoronoiStruct.Polygon polygon) //找出河的源頭
         {
             int n;
             n = rand.Next(0, polygon.edges.Count);
-            riversource = polygon.edges[n].line.a;
+            riversource.Add(polygon.edges[n].line.a);
         }
 
         int river_generator(VoronoiStruct.Point pos) //產生河流
@@ -169,15 +169,14 @@ namespace Until_Biome
             List<VoronoiStruct.Line> line = new List<VoronoiStruct.Line>();
             float temp = 1000;
             foreach (var item1 in vmap.polygons)
-            {
-                
+            {    
                 foreach(var item2 in item1.edges)
                 {
                     if (pos.x == item2.line.a.x && pos.y == item2.line.a.y)
                     {
                         connect.Add(item2.line.b);
                         line.Add(item2.line);
-                        allRiver.Add(item2.line.b);
+                        //allRiver.Add(item2.line.b);
                         if (item2.line.b.elevation <= temp)
                         {
                             temp = item2.line.b.elevation;
@@ -187,7 +186,7 @@ namespace Until_Biome
                     {
                         connect.Add(item2.line.a);
                         line.Add(item2.line);
-                        allRiver.Add(item2.line.a);
+                        //allRiver.Add(item2.line.a);
                         if (item2.line.a.elevation <= temp)
                         {
                             temp = item2.line.a.elevation;
@@ -209,7 +208,7 @@ namespace Until_Biome
             }
             foreach (var item in line)
             {
-                if (item.a.elevation == temp || item.b.elevation == temp)
+                if (item.a.elevation == temp)
                 {
                     foreach (var item1 in vmap.polygons)
                     {
@@ -219,6 +218,24 @@ namespace Until_Biome
                                 && item.b.x == item2.line.b.x && item.b.y == item2.line.b.y)
                             {
                                 item2.line.isRiver = true;
+                                allRiver.Add(item.a);
+                                return river_generator(connect[i]);
+                            }
+
+                        }
+                    }
+                }
+                else if (item.b.elevation == temp)
+                {
+                    foreach (var item1 in vmap.polygons)
+                    {
+                        foreach (var item2 in item1.edges)
+                        {
+                            if (item.a.x == item2.line.a.x && item.a.y == item2.line.a.y
+                                && item.b.x == item2.line.b.x && item.b.y == item2.line.b.y)
+                            {
+                                item2.line.isRiver = true;
+                                allRiver.Add(item.b);
                                 return river_generator(connect[i]);
                             }
 
@@ -348,6 +365,12 @@ namespace Until_Biome
             }
         }
 
+        private void button3_Click(object sender, EventArgs e)
+        {
+            pictureBox1.Image = null;
+            allRiver.Clear();
+        }
+
         void decide_biome(ref VoronoiStruct.Voronoi map) //決定出生態系
         {
             foreach(var item in map.polygons)
@@ -358,7 +381,7 @@ namespace Until_Biome
 
                 else if (item.elevation <= 0.3 && item.moisture >= 0.35 && item.moisture <= 0.55) item.bio = VoronoiStruct.Biome.Desert;
                 else if (item.elevation >= 0.3 && item.elevation <= 0.8 && item.moisture >= 0.35 && item.moisture <= 0.55) item.bio = VoronoiStruct.Biome.Grassland;
-                else if (item.elevation >= 0.8 && item.moisture >= 0.35 && item.moisture <= 0.55) item.bio = VoronoiStruct.Biome.Desert;
+                else if (item.elevation >= 0.8 && item.moisture >= 0.35 && item.moisture <= 0.55) item.bio = VoronoiStruct.Biome.Grassland;
 
                 else if (item.elevation <= 0.5 && item.moisture >= 0.55 && item.moisture <= 0.8) item.bio = VoronoiStruct.Biome.Grassland;
                 else if (item.elevation >= 0.5 && item.elevation <= 0.8 && item.moisture >= 0.55 && item.moisture <= 0.8) item.bio = VoronoiStruct.Biome.Forest;
@@ -407,6 +430,7 @@ namespace Until_Biome
 
 
         int Toppolygon;
+        bool isTopExist = true;
         private void elevationbutton_Click(object sender, EventArgs e)
         {
             if (vmap == null)
@@ -414,25 +438,37 @@ namespace Until_Biome
                 MessageBox.Show("No map");
                 return;
             }
+            pictureBox1.Image = null;
+            drawVoronoi(vmap);
+            drawing_biome(vmap);
+            draw_river(vmap);
 
             int i = 0, n;
             Toppolygon = -1;
             bool beTop;
-            while (i < 10000)//找出最高的polygon
+            while (i < 10000 && isTopExist)//找出最高的polygon
             {
                 beTop = true;
                 n = rand.Next(0, vmap.polygons.Count);
-                foreach(var item in vmap.polygons[n].edges)
+                /*foreach(var item in vmap.polygons[n].edges)
                 {
-                    if (item.line.a.x <= 250 || item.line.a.x >= 550) beTop = false;
-                    else if (item.line.a.y <= 250 || item.line.a.y >= 550) beTop = false;
-                    else if (item.line.b.x <= 250 || item.line.b.x >= 550) beTop = false;
-                    else if (item.line.b.y <= 250 || item.line.b.y >= 550) beTop = false;
+                    if (item.line.a.x <= 300 || item.line.a.x >= 500) beTop = false;
+                    else if (item.line.a.y <= 300 || item.line.a.y >= 500) beTop = false;
+                    else if (item.line.b.x <= 300 || item.line.b.x >= 500) beTop = false;
+                    else if (item.line.b.y <= 300 || item.line.b.y >= 500) beTop = false;
+                }*/
+                foreach (var item in vmap.polygons[n].edges)
+                {
+                    if (item.line.a.x <= 200 || item.line.a.x >=600) beTop = false;
+                    else if (item.line.a.y <= 200 || item.line.a.y >= 600) beTop = false;
+                    else if (item.line.b.x <= 200 || item.line.b.x >= 600) beTop = false;
+                    else if (item.line.b.y <= 200 || item.line.b.y >= 600) beTop = false;
                 }
                 if (beTop)
                 {
                     Toppolygon = n;
                     System.Diagnostics.Debug.WriteLine("Top is: " + n);
+                    //isTopExist = false;
                     break;
                 }
                 ++i;
@@ -453,7 +489,7 @@ namespace Until_Biome
                 System.Diagnostics.Debug.WriteLine("Toppolygon elevation x: " + item.line.a.elevation + " y: " + item.line.b.elevation);
             }*/
             find_river_source(vmap.polygons[Toppolygon]);
-            if (river_generator(riversource) == -1) System.Diagnostics.Debug.WriteLine("Correct generate river");
+            if (river_generator(riversource[riversource.Count-1]) == -1) System.Diagnostics.Debug.WriteLine("Correct generate river");
 
             draw_river(vmap);
 
@@ -501,25 +537,27 @@ namespace Until_Biome
 
 
 
-        void cast_to_world(VoronoiStruct.Voronoi map)
+        void cast_to_world(VoronoiStruct.Voronoi map) //將地圖投影到unit上
         {
             float x1 = 0, y1 = 0, x2 = 0, y2 = 0;
             float result;
             bool inside = true;
+            bool river_so_skip = true;
+
             for (int i = 0; i < world.unit.GetLength(0); ++i)
             {
                 for (int j = 0; j < world.unit.GetLength(1); ++j)
                 {
-                    foreach(var item1 in map.polygons)
+                    foreach (var item1 in map.polygons)
                     {
-                        foreach(var item2 in item1.edges)
+                        foreach (var item2 in item1.edges)
                         {
                             x1 = item2.line.a.x - i;
                             y1 = item2.line.a.y - j;
                             x2 = item2.line.b.x - i;
                             y2 = item2.line.b.y - j;
                             result = x1 * y2 - y1 * x2;
-                            if (result <= 0f)
+                            if (result < 0f)
                             {
                                 inside = false;
                                 break;
@@ -530,10 +568,12 @@ namespace Until_Biome
                             world.unit[i, j] = item1.bio;
                             break;
                         }
+                        inside = true;
                     }
-                    inside = true;
                 }
             }
+
+
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -573,8 +613,11 @@ namespace Until_Biome
                 case VoronoiStruct.Biome.Ocean:
                     g.DrawRectangle(new Pen(Color.Navy), new Rectangle(a, b, 1, 1));
                     break;
+                case VoronoiStruct.Biome.River:
+                    g.DrawRectangle(new Pen(Color.SkyBlue), new Rectangle(a, b, 1, 1));
+                    break;
                 default:
-                    g.DrawRectangle(new Pen(Color.Orange), new Rectangle(a, b, 1, 1));
+                    g.DrawRectangle(new Pen(Color.Black), new Rectangle(a, b, 1, 1));
                     break;
             }
             

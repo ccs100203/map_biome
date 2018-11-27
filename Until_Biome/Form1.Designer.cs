@@ -42,6 +42,7 @@
             this.button1 = new System.Windows.Forms.Button();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.saveFileDialog2 = new System.Windows.Forms.SaveFileDialog();
+            this.button3 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -123,12 +124,13 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.button3);
             this.panel1.Controls.Add(this.button2);
             this.panel1.Controls.Add(this.button1);
             this.panel1.Controls.Add(this.elevationbutton);
             this.panel1.Location = new System.Drawing.Point(509, 82);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(201, 340);
+            this.panel1.Size = new System.Drawing.Size(201, 433);
             this.panel1.TabIndex = 3;
             // 
             // button2
@@ -158,6 +160,16 @@
             // saveFileDialog2
             // 
             this.saveFileDialog2.Filter = "Voronoi Map (*.json) | *.json";
+            // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(40, 353);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(119, 40);
+            this.button3.TabIndex = 4;
+            this.button3.Text = "Clear";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
             // Form1
             // 
@@ -196,6 +208,7 @@
         private System.Windows.Forms.ToolStripMenuItem saveCastResultToolStripMenuItem;
         private System.Windows.Forms.SaveFileDialog saveFileDialog2;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button button3;
     }
 }
 
