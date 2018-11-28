@@ -598,7 +598,7 @@ namespace Until_Biome
                         }
                         if (inside)
                         {
-                            world.unit[i, j] = item1.bio;
+                            world.unit[i, j] = (int)item1.bio;
                             break;
                         }
                         inside = true;
@@ -625,34 +625,34 @@ namespace Until_Biome
         {
             switch (world.unit[a, b])
             {
-                case VoronoiStruct.Biome.Grassland:
+                case (int)VoronoiStruct.Biome.Grassland:
                     g.DrawRectangle(new Pen(Color.SpringGreen), new Rectangle(a, b, 1, 1));
                     break;
-                case VoronoiStruct.Biome.Forest:
+                case (int)VoronoiStruct.Biome.Forest:
                     g.DrawRectangle(new Pen(Color.DarkGreen), new Rectangle(a, b, 1, 1));
                     break;
-                case VoronoiStruct.Biome.Desert:
+                case (int)VoronoiStruct.Biome.Desert:
                     g.DrawRectangle(new Pen(Color.Gold), new Rectangle(a, b, 1, 1));
                     break;
-                case VoronoiStruct.Biome.Snow:
+                case (int)VoronoiStruct.Biome.Snow:
                     g.DrawRectangle(new Pen(Color.Gray), new Rectangle(a, b, 1, 1));
                     break;
-                case VoronoiStruct.Biome.Lava:
+                case (int)VoronoiStruct.Biome.Lava:
                     g.DrawRectangle(new Pen(Color.Firebrick), new Rectangle(a, b, 1, 1));
                     break;
-                case VoronoiStruct.Biome.Volcano:
+                case (int)VoronoiStruct.Biome.Volcano:
                     g.DrawRectangle(new Pen(Color.Fuchsia), new Rectangle(a, b, 1, 1));
                     break;
-                case VoronoiStruct.Biome.Ocean:
+                case (int)VoronoiStruct.Biome.Ocean:
                     g.DrawRectangle(new Pen(Color.Navy), new Rectangle(a, b, 1, 1));
                     break;
-                case VoronoiStruct.Biome.River:
+                case (int)VoronoiStruct.Biome.River:
                     g.DrawRectangle(new Pen(Color.SkyBlue), new Rectangle(a, b, 1, 1));
                     break;
-                case VoronoiStruct.Biome.Coastline:
+                case (int)VoronoiStruct.Biome.Coastline:
                     g.DrawRectangle(new Pen(Color.SaddleBrown), new Rectangle(a, b, 1, 1));
                     break;
-                case VoronoiStruct.Biome.Riverbank:
+                case (int)VoronoiStruct.Biome.Riverbank:
                     g.DrawRectangle(new Pen(Color.Pink), new Rectangle(a, b, 1, 1));
                     break;
                 default:

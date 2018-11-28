@@ -10,12 +10,12 @@ namespace Until_Biome
     {
         public World()
         {
-            unit = new VoronoiStruct.Biome[800, 800];
+            unit = new int[800, 800];
         }
         public World(int a, int b)
         {
-            unit = new VoronoiStruct.Biome[a, b];
+            unit = new int[a, b];
         }
-        public VoronoiStruct.Biome[,] unit;
+        public int[,] unit;
     }
 }
