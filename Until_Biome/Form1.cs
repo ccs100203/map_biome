@@ -152,14 +152,31 @@ namespace Until_Biome
             }
         }
 
-        List<VoronoiStruct.Point> riversource = new List<VoronoiStruct.Point>(); 
+        List<VoronoiStruct.Point> riversource = new List<VoronoiStruct.Point>();
+        int onstate = 0;//用到第幾個源頭
         //VoronoiStruct.Point riversource;
         List<VoronoiStruct.Point> allRiver = new List<VoronoiStruct.Point>();
-        void find_river_source(VoronoiStruct.Polygon polygon) //找出河的源頭
+        void find_river_source(ref VoronoiStruct.Voronoi map) //找出河的源頭
         {
             int n;
-            n = rand.Next(0, polygon.edges.Count);
-            riversource.Add(polygon.edges[n].line.a);
+            int total = 0;
+            bool repeat = false;
+            foreach (var item in map.polygons[Toppolygon].edges)
+            {
+                total++;
+            }
+            n = rand.Next(0, total);
+            foreach (var item in riversource)
+            {
+                if (map.polygons[Toppolygon].edges[n].line.a.x == item.x && map.polygons[Toppolygon].edges[n].line.a.y == item.y)
+                    repeat = true;
+            }
+            if (!repeat)
+            {
+                riversource.Add(map.polygons[Toppolygon].edges[n].line.a);
+                onstate++;
+            }
+            
         }
 
         int river_generator(VoronoiStruct.Point pos) //產生河流
@@ -167,7 +184,8 @@ namespace Until_Biome
             //float [,]temp;
             List<VoronoiStruct.Point> connect = new List<VoronoiStruct.Point>();
             List<VoronoiStruct.Line> line = new List<VoronoiStruct.Line>();
-            float temp = 1000;
+            float temp = 5000;
+            //bool repeat = false;
             foreach (var item1 in vmap.polygons)
             {    
                 foreach(var item2 in item1.edges)
@@ -293,7 +311,7 @@ namespace Until_Biome
 
         void give_moisture(ref VoronoiStruct.Voronoi map) //找出所有polygon的溼度
         {
-            float x = 2000, y = 2000;
+            float x = 5000, y = 5000;
             foreach(var item1 in map.polygons)
             {
                 foreach (var item3 in allRiver)
@@ -369,6 +387,7 @@ namespace Until_Biome
         {
             pictureBox1.Image = null;
             allRiver.Clear();
+            riversource.Clear();
         }
 
         void decide_biome(ref VoronoiStruct.Voronoi map) //決定出生態系
@@ -408,15 +427,34 @@ namespace Until_Biome
                         if (item2.parentID == null) continue;
                         if(map.polygons[item2.parentID[0]].bio != VoronoiStruct.Biome.Ocean)
                         {
-                            map.polygons[item2.parentID[0]].bio = VoronoiStruct.Biome.Coastline;
+                            //map.polygons[item2.parentID[0]].bio = VoronoiStruct.Biome.Coastline;
+                            map.polygons[item2.parentID[0]].bio |= VoronoiStruct.Biome.Coastline;
+                            //System.Diagnostics.Debug.WriteLine("Coastline: " + map.polygons[item2.parentID[0]].focus + "  " + map.polygons[item2.parentID[0]].bio);
                         }
                         if (map.polygons[item2.parentID[1]].bio != VoronoiStruct.Biome.Ocean)
                         {
-                            map.polygons[item2.parentID[1]].bio = VoronoiStruct.Biome.Coastline;
+                            //map.polygons[item2.parentID[1]].bio = VoronoiStruct.Biome.Coastline;
+                            map.polygons[item2.parentID[1]].bio |= VoronoiStruct.Biome.Coastline;
+                            //System.Diagnostics.Debug.WriteLine("Coastline: " + map.polygons[item2.parentID[1]].focus + "  " + map.polygons[item2.parentID[1]].bio);
                         }
                     }                    
                 }
             }
+        }
+
+        private void button4_Click(object sender, EventArgs e)//Show River
+        {
+            foreach (var item in riversource)
+            {
+                System.Diagnostics.Debug.WriteLine("RiverSource X:" + item.x + "  Y: " + item.y);
+            }
+            
+            foreach (var item in allRiver)
+            {
+                System.Diagnostics.Debug.WriteLine("X:" + item.x + "  Y: " + item.y);
+            }
+
+            
         }
 
         void drawing_biome(VoronoiStruct.Voronoi map) //畫出生態系
@@ -455,6 +493,9 @@ namespace Until_Biome
                     case VoronoiStruct.Biome.Coastline:
                         drawPoint(new SolidBrush(Color.SaddleBrown), item.focus);
                         break;
+                    default:
+                        drawPoint(new SolidBrush(Color.SaddleBrown), item.focus);
+                        break;
                 }
             }
         }
@@ -475,30 +516,31 @@ namespace Until_Biome
             draw_river(vmap);
 
             int i = 0, n;
-            Toppolygon = -1;
+            
             bool beTop;
             while (i < 10000 && isTopExist)//找出最高的polygon
             {
                 beTop = true;
+                Toppolygon = -1;
                 n = rand.Next(0, vmap.polygons.Count);
-                /*foreach(var item in vmap.polygons[n].edges)
+                foreach(var item in vmap.polygons[n].edges)
                 {
                     if (item.line.a.x <= 300 || item.line.a.x >= 500) beTop = false;
                     else if (item.line.a.y <= 300 || item.line.a.y >= 500) beTop = false;
                     else if (item.line.b.x <= 300 || item.line.b.x >= 500) beTop = false;
                     else if (item.line.b.y <= 300 || item.line.b.y >= 500) beTop = false;
-                }*/
-                foreach (var item in vmap.polygons[n].edges)
+                }
+                /*foreach (var item in vmap.polygons[n].edges)
                 {
                     if (item.line.a.x <= 200 || item.line.a.x >=600) beTop = false;
                     else if (item.line.a.y <= 200 || item.line.a.y >= 600) beTop = false;
                     else if (item.line.b.x <= 200 || item.line.b.x >= 600) beTop = false;
                     else if (item.line.b.y <= 200 || item.line.b.y >= 600) beTop = false;
-                }
+                }*/
                 if (beTop)
                 {
                     Toppolygon = n;
-                    System.Diagnostics.Debug.WriteLine("Top is: " + n);
+                    //System.Diagnostics.Debug.WriteLine("Top is: " + n);
                     //isTopExist = false;
                     break;
                 }
@@ -506,22 +548,27 @@ namespace Until_Biome
                 if (i == 10000) MessageBox.Show("No find corresponding polygon");
             }
             if (Toppolygon == -1) return;
+            else beTop = true;
+            System.Diagnostics.Debug.WriteLine("Top is: " + Toppolygon);
             /*foreach(var item in vmap.polygons[Toppolygon].edges)
             {
                 giveelevation_assignline(item.line.a.x, item.line.a.y, 1000);
                 giveelevation_assignline(item.line.b.x, item.line.b.y, 1000);
             }*/
-
-            calculate_polygoncenter(ref vmap);
-            //System.Diagnostics.Debug.WriteLine(vmap.polygons[Toppolygon].centerX + "\t" + vmap.polygons[Toppolygon].centerY);
-            calelevation(ref vmap);
+            if (isTopExist)
+            {
+                calculate_polygoncenter(ref vmap);
+                //System.Diagnostics.Debug.WriteLine(vmap.polygons[Toppolygon].centerX + "\t" + vmap.polygons[Toppolygon].centerY);
+                calelevation(ref vmap);
+                //System.Diagnostics.Debug.WriteLine("ONCE");
+            }
             /*foreach(var item in vmap.polygons[Toppolygon].edges) //印出最高Polygon的各點高度
             {
                 System.Diagnostics.Debug.WriteLine("Toppolygon elevation x: " + item.line.a.elevation + " y: " + item.line.b.elevation);
             }*/
-            find_river_source(vmap.polygons[Toppolygon]);
-            if (river_generator(riversource[riversource.Count-1]) == -1) System.Diagnostics.Debug.WriteLine("Correct generate river");
 
+            find_river_source(ref vmap);
+            if (river_generator(riversource[riversource.Count - 1]) == -1) System.Diagnostics.Debug.WriteLine("Correct generate river");
             draw_river(vmap);
 
             find_sea(ref vmap);
@@ -540,8 +587,13 @@ namespace Until_Biome
             give_moisture(ref vmap);
 
 
-            elevation_for_polygon(ref vmap);
-            ratio_elevation_of_polygon(ref vmap);
+            if (isTopExist)
+            {
+                elevation_for_polygon(ref vmap);
+                ratio_elevation_of_polygon(ref vmap);
+            }
+
+            
 
             decide_biome(ref vmap);
 
@@ -552,7 +604,11 @@ namespace Until_Biome
             }*/
             drawing_biome(vmap);
 
-
+            /*if (beTop)
+            {
+                isTopExist = false;
+            }*/
+            //System.Diagnostics.Debug.WriteLine("Here");
             pictureBox1.Invalidate();
         }
 
