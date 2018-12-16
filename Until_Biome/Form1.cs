@@ -691,6 +691,7 @@ namespace Until_Biome
         {
             float x1 = 0, y1 = 0, x2 = 0, y2 = 0;
             float inner = 0, outter = 0;
+            double u, v, k, distance;
             for (int i = 0; i < world.unit.GetLength(0); ++i)
             {
                 for (int j = 0; j < world.unit.GetLength(1); ++j)
@@ -698,17 +699,29 @@ namespace Until_Biome
                     world.unit[i, j] = 0;
                     foreach (var item1 in map.polygons)
                     {
-                        if (item1.bio == VoronoiStruct.Biome.Ocean) continue;
+                        if (((int)item1.bio & (int)VoronoiStruct.Biome.Ocean) != 0) continue;
                         foreach (var item2 in item1.edges)
                         {
                             if (!item2.line.isRiver) continue;
-                            x1 = item2.line.a.x - i;
-                            y1 = item2.line.a.y - j;
-                            x2 = item2.line.b.x - i;
-                            y2 = item2.line.b.y - j;
+                            x1 = i - item2.line.a.x;
+                            y1 = j - item2.line.a.y;
+                            x2 = i - item2.line.b.x;
+                            y2 = j - item2.line.b.y;
                             inner = x1 * x2 + y1 * y2;
                             outter = x1 * y2 - x2 * y2;
-                            if (inner < 0 && outter == 0)
+
+                            u = item2.line.b.x - item2.line.a.x;
+                            v = item2.line.b.y - item2.line.a.y;
+                            k = (-v) * item2.line.b.x + u * item2.line.b.y;
+                            distance = Math.Abs((-v) * i + u * j - k) / Math.Sqrt(v * v + u * u);
+                            //System.Diagnostics.Debug.WriteLine("inner:" + inner);
+                            //System.Diagnostics.Debug.WriteLine("outter:" + outter);
+                            //System.Diagnostics.Debug.WriteLine("distance:" + distance);
+                            /*if (inner <= 100 && Math.Abs(outter) <= 1)
+                            {
+                                world.unit[i, j] = (int)VoronoiStruct.Biome.River;
+                            }*/
+                            if (inner <= 100 && distance <= 7)
                             {
                                 world.unit[i, j] = (int)VoronoiStruct.Biome.River;
                             }
@@ -744,6 +757,7 @@ namespace Until_Biome
                         if (inside)
                         {
                             world.unit[i, j] = (int)item1.bio;
+                            if (((int)item1.bio & (int)VoronoiStruct.Biome.Ocean) !=0) world.unit[i, j] = (int)(VoronoiStruct.Biome.Ocean);
                             break;
                         }
                         inside = true;
