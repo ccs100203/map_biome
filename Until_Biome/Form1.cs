@@ -786,7 +786,7 @@ namespace Until_Biome
 
         private void draw_unit(int a, int b) //畫出unit
         {
-            switch (world.unit[a, b])
+            /*switch (world.unit[a, b])
             {
                 case (int)VoronoiStruct.Biome.Grassland:
                     g.DrawRectangle(new Pen(Color.SpringGreen), new Rectangle(a, b, 1, 1));
@@ -812,18 +812,21 @@ namespace Until_Biome
                 case (int)VoronoiStruct.Biome.River:
                     g.DrawRectangle(new Pen(Color.SkyBlue), new Rectangle(a, b, 1, 1));
                     break;
-                case (int)VoronoiStruct.Biome.Coastline:
-                    g.DrawRectangle(new Pen(Color.SaddleBrown), new Rectangle(a, b, 1, 1));
-                    break;
-                case (int)VoronoiStruct.Biome.Riverbank:
-                    g.DrawRectangle(new Pen(Color.Pink), new Rectangle(a, b, 1, 1));
-                    break;
                 default:
                     g.DrawRectangle(new Pen(Color.Black), new Rectangle(a, b, 1, 1));
                     break;
-            }
-            if ((world.unit[a, b] & (int)VoronoiStruct.Biome.Riverbank) != 0) g.DrawRectangle(new Pen(Color.Pink), new Rectangle(a, b, 1, 1));
-            if ((world.unit[a, b] & (int)VoronoiStruct.Biome.Coastline) != 0) g.DrawRectangle(new Pen(Color.SaddleBrown), new Rectangle(a, b, 1, 1));
+            }*/
+            if ((world.unit[a, b] & (int)VoronoiStruct.Biome.Grassland) != 0) g.DrawRectangle(new Pen(Color.SpringGreen), new Rectangle(a, b, 1, 1));
+            if ((world.unit[a, b] & (int)VoronoiStruct.Biome.Forest) != 0) g.DrawRectangle(new Pen(Color.DarkGreen), new Rectangle(a, b, 1, 1));
+            if ((world.unit[a, b] & (int)VoronoiStruct.Biome.Desert) != 0) g.DrawRectangle(new Pen(Color.Gold), new Rectangle(a, b, 1, 1));
+            if ((world.unit[a, b] & (int)VoronoiStruct.Biome.Snow) != 0) g.DrawRectangle(new Pen(Color.Gray), new Rectangle(a, b, 1, 1));
+            if ((world.unit[a, b] & (int)VoronoiStruct.Biome.Volcano) != 0) g.DrawRectangle(new Pen(Color.Fuchsia), new Rectangle(a, b, 1, 1));
+            if ((world.unit[a, b] & (int)VoronoiStruct.Biome.Lava) != 0) g.DrawRectangle(new Pen(Color.Firebrick), new Rectangle(a, b, 1, 1));
+            if ((world.unit[a, b] & (int)VoronoiStruct.Biome.Ocean) != 0) g.DrawRectangle(new Pen(Color.Navy), new Rectangle(a, b, 1, 1));
+            if ((world.unit[a, b] & (int)VoronoiStruct.Biome.River) != 0) g.DrawRectangle(new Pen(Color.SkyBlue), new Rectangle(a, b, 1, 1));
+            if ((world.unit[a, b] & (int)VoronoiStruct.Biome.River) != 0) System.Diagnostics.Debug.WriteLine("River: " + world.unit[a, b]);
+            //if ((world.unit[a, b] & (int)VoronoiStruct.Biome.Riverbank) != 0) g.DrawRectangle(new Pen(Color.Pink), new Rectangle(a, b, 1, 1));
+            //if ((world.unit[a, b] & (int)VoronoiStruct.Biome.Coastline) != 0) g.DrawRectangle(new Pen(Color.SaddleBrown), new Rectangle(a, b, 1, 1));
 
         }
 
