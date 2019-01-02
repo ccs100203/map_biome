@@ -824,7 +824,7 @@ namespace Until_Biome
             if ((world.unit[a, b] & (int)VoronoiStruct.Biome.Lava) != 0) g.DrawRectangle(new Pen(Color.Firebrick), new Rectangle(a, b, 1, 1));
             if ((world.unit[a, b] & (int)VoronoiStruct.Biome.Ocean) != 0) g.DrawRectangle(new Pen(Color.Navy), new Rectangle(a, b, 1, 1));
             if ((world.unit[a, b] & (int)VoronoiStruct.Biome.River) != 0) g.DrawRectangle(new Pen(Color.SkyBlue), new Rectangle(a, b, 1, 1));
-            if ((world.unit[a, b] & (int)VoronoiStruct.Biome.River) != 0) System.Diagnostics.Debug.WriteLine("River: " + world.unit[a, b]);
+            //if ((world.unit[a, b] & (int)VoronoiStruct.Biome.River) != 0) System.Diagnostics.Debug.WriteLine("River: " + world.unit[a, b]);
             //if ((world.unit[a, b] & (int)VoronoiStruct.Biome.Riverbank) != 0) g.DrawRectangle(new Pen(Color.Pink), new Rectangle(a, b, 1, 1));
             //if ((world.unit[a, b] & (int)VoronoiStruct.Biome.Coastline) != 0) g.DrawRectangle(new Pen(Color.SaddleBrown), new Rectangle(a, b, 1, 1));
 
